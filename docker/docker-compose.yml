@@ -1,0 +1,42 @@
+services:
+  mysql_source:
+    image: mysql:${MYSQL_VERSION:-8.4}
+    container_name: mysql_source
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
+    volumes:
+      - ./source/conf:/etc/mysql/conf.d
+      - ./source/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+
+  mysql_replica:
+    image: mysql:${MYSQL_VERSION:-8.4}
+    container_name: mysql_replica
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
+    volumes:
+      - ./replica/conf:/etc/mysql/conf.d
+      - ./replica/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3307:3306"
+    depends_on:
+      - mysql_source
+
+  mysqld-exporter:
+    build: ..
+    container_name: mysqld-exporter
+    command:
+      - '--collect.slave_hosts'
+      - '--mysqld.address=mysql_source:3306'
+      #- '--mysqld.address=mysql_replica:3306'
+      - '--mysqld.username=root'
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: root
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql_source
+      - mysql_replica
