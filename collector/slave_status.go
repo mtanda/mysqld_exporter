@@ -30,7 +30,7 @@ const (
 	slaveStatus = "slave_status"
 )
 
-var slaveStatusQueries = [2]string{"SHOW ALL SLAVES STATUS", "SHOW SLAVE STATUS"}
+var slaveStatusQueries = [3]string{"SHOW ALL SLAVES STATUS", "SHOW SLAVE STATUS", "SHOW REPLICA STATUS"}
 var slaveStatusQuerySuffixes = [3]string{" NONBLOCKING", " NOLOCK", ""}
 
 func columnIndex(slaveCols []string, colName string) int {
